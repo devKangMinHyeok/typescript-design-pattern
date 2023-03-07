@@ -1,0 +1,19 @@
+{
+  "name": "typescript-design-pattern",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devKangMinHyeok/typescript-design-pattern.git"
+  },
+  "author": "minhyeok kang",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/devKangMinHyeok/typescript-design-pattern/issues"
+  },
+  "homepage": "https://github.com/devKangMinHyeok/typescript-design-pattern#readme"
+}
