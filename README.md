@@ -14,6 +14,10 @@
 
 [Creational Pattern(생성 패턴) - Singleton (싱글톤)](#creational-pattern생성-패턴---singleton-싱글톤)
 
+### Structural Pattern(구조 패턴)
+
+[Structural Pattern(구조 패턴) - Adapter (어댑터)](#structural-pattern구조-패턴---adapter-어댑터)
+
 ## Creational Pattern(생성 패턴) - Factory Method (팩토리 메서드)
 
 ### Keyword
@@ -1173,3 +1177,130 @@ clientCode();
 [싱글톤(Singleton) 패턴이란?](https://tecoble.techcourse.co.kr/post/2020-11-07-singleton/)
 
 [[NestJS] 모든게 싱글톤 인스턴스 아니었어? (imports, providers 주의사항)](https://jay-ji.tistory.com/106)
+
+## Structural Pattern(구조 패턴) - Adapter (어댑터)
+
+### Keyword
+
+`변환`, `단일 책임`, `데이터 변환 코드 분리`, `개방/폐쇄 원칙`
+
+---
+
+### Script
+
+어댑터는 한 객체의 인터페이스를 다른 객체가 이해할 수 있도록 변환시켜주는 특별한 객체입니다.
+
+이 객체를 통해, 수정할 수 없는 클래스에 대해서 기존 코드를 유지한채, 클라이언트 코드에서 사용할 수 있는 방식으로 변환하여 사용할 수 있게 됩니다.
+
+이 디자인 패턴을 통해, 단일 책임 원칙을 지킬 수 있게 됩니다. 프로그램의 기본 로직에서, 데이터 변환 코드를 분리할 수 있게 됩니다. 또, 이는 기존 코드와 클라이언트 코드를 거의 고치지 않기 때문에, 기존 코드의 손상없이 새로운 유형의 어댑터를 도입할 수 있게되어, 개방/폐쇄 원칙도 지킬 수 있습니다.
+
+---
+
+### Additional
+
+#### 언제 Adapter 패턴을 쓰나
+
+**기존 클래스를 사용하고 싶지만, 그 인터페이스가 나머지 코드와 호환되지 않을때**
+어댑터 패턴은 현재 코드와 legacy class, 타사 class 등의 기존 클래스 간의 변환기 역할을 하는 중간 레이어 클래스가 된다.
+
+**부모 클래스에 공통 기능을 추가할 수도 없는데, 해당 기능이 여러 자식 클래스에서 쓰이는 경우**
+만약 A라는 기능이 자식 클래스에서 필요로 해서, 각 자식 클래스에서 필요한 기능들을 넣었다고 치자. 그런데, 그 기능이 부모 클래스에 추가할 수는 없고, 자식 클래스 여러개에서만 적용되는 기능이다. 그럼 각각의 자식 클래스마다 이 메소드를 추가해줘야 한다. 코드가 굉장히 더러워질 것이다.
+
+하지만 어댑터 클래스를 통해, 공통 인터페이스를 가지는 각 자식 클래스를 래핑하면, 필요한 기능을 동적으로 할당할 수 있게 된다.
+
+---
+
+#### Adapter 패턴 장점
+
+**원래 호환되지 않던 일부 클래스들을 기존 앱과 호환**
+
+**단일 책임 원칙 - 데이터 변환 코드의 분리**
+
+**개방/폐쇄 원칙 - 기존 코드의 수정을 최소화하며, 새로운 유형의 어댑터 도입**
+
+---
+
+#### Adapter 패턴 단점
+
+**추가 인터페이스와 클래스로 발생하는 오버헤드**
+
+**원본 객체의 메서드가 static으로 선언되어, 인스턴스화 할 수 없는 경우**
+
+---
+
+#### Adapter 코드 예제 (typescript)
+
+**전체 코드**
+
+```ts
+class Target {
+  public request(): string {
+    return "Target: The default target's behavior.";
+  }
+}
+
+class Adaptee {
+  public specificRequest(): string {
+    return ".eetpadA eht fo roivaheb laicepS";
+  }
+}
+
+class Adapter extends Target {
+  private adaptee: Adaptee;
+
+  constructor(adaptee: Adaptee) {
+    super();
+    this.adaptee = adaptee;
+  }
+
+  public request(): string {
+    const result = this.adaptee.specificRequest().split("").reverse().join("");
+    return `Adapter: (TRANSLATED) ${result}`;
+  }
+}
+
+function clientCode(target: Target) {
+  console.log(target.request());
+}
+
+console.log("Client: I can work just fine with the Target objects:");
+const target = new Target();
+clientCode(target);
+
+console.log("");
+
+const adaptee = new Adaptee();
+console.log(
+  "Client: The Adaptee class has a weird interface. See, I don't understand it:"
+);
+console.log(`Adaptee: ${adaptee.specificRequest()}`);
+
+console.log("");
+
+console.log("Client: But I can work with it via the Adapter:");
+const adapter = new Adapter(adaptee);
+clientCode(adapter);
+
+/**
+ * result
+ *
+ * Client: I can work just fine with the Target objects:
+ * Target: The default target's behavior.
+ *
+ * Client: The Adaptee class has a weird interface. See, I don't understand it:
+ * Adaptee: .eetpadA eht fo roivaheb laicepS
+ *
+ * Client: But I can work with it via the Adapter:
+ * Adapter: (TRANSLATED) Special behavior of the Adaptee.
+ */
+```
+
+---
+
+### Reference
+
+[adapter 패턴](https://refactoring.guru/ko/design-patterns/adapter)
+
+[타입스크립트로 작성된 adapter](https://refactoring.guru/ko/design-patterns/adapter/typescript/example)
+
+[[번역] 자바스크립트 디자인 패턴](https://www.devh.kr/2021/Design-Patterns-In-JavaScript/)
