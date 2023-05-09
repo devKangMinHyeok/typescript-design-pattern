@@ -16,9 +16,11 @@
 
 ### Structural Pattern(구조 패턴)
 
+[Structural Pattern(구조 패턴) - Adapter (어댑터)](#structural-pattern구조-패턴---adapter-어댑터)
+
 [Structural Pattern(구조 패턴) - Bridge (브릿지)](#structural-pattern구조-패턴---bridge-브릿지)
 
-[Structural Pattern(구조 패턴) - Adapter (어댑터)](#structural-pattern구조-패턴---adapter-어댑터)
+[Structural Pattern(구조 패턴) - Composite (복합체)](#structural-pattern구조-패턴---composite-복합체)
 
 ## Creational Pattern(생성 패턴) - Factory Method (팩토리 메서드)
 
@@ -1410,3 +1412,155 @@ clientCode(abstraction);
 [타입스크립트로 작성된 bridge](https://refactoring.guru/ko/design-patterns/bridge/typescript/example)
 
 [[번역] 자바스크립트 디자인 패턴](https://www.devh.kr/2021/Design-Patterns-In-JavaScript/)
+
+## Structural Pattern(구조 패턴) - Composite (복합체)
+
+### Keyword
+
+`Composite`, `Leaf`, `Component`
+
+---
+
+### Script
+
+Composite 패턴은 Composite(복합 객체)와 Leaf(단일 객체)를 동일한 Component로 취급하여, 클라이언트는 이 둘을 동일한 인터페이스로 사용할 수 있게끔 하는 구조 패턴입니다.
+
+먼저, Leaf와 Composite을 묶는 공통 상위 인터페이스로, Component가 존재합니다. Composite과 Leaf는 operation() 추상 메서드를 정의하고, Composite 객체의 operation 메서드는 자기 자신을 호출하는 재귀 형태로 구현됩니다.
+
+![](https://velog.velcdn.com/images/kangdev/post/cf31e0a4-8295-47d8-ac4a-ea015f31be59/image.png)
+
+---
+
+### Additional
+
+#### 언제 Composite 패턴을 쓰나
+
+**계층적 트리 표현을 다룰때**
+
+**복잡하고 난해한 단일/복합 객체 관계를 단순화하고 균일하게 처리하고 싶을때**
+
+---
+
+#### Composite 패턴 장점
+
+1. Composite과 Leaf를 동일하게 여기기 때문에, 같은 방식으로 클라이언트에서 다룰 수 있다.
+
+2. 다형성 재귀를 통해 복잡한 트리 구조를 편리하게 구성할 수 있다.
+
+3. 수평, 수직 모든 방향으로 객체를 확장할 수 있다.
+
+#### Composite 패턴 단점
+
+1. 재귀 호출의 특성 상 트리의 깊이가 깊어질 수록, 디버깅에 어려움이 생긴다.
+
+2. 설계 단계에서 Leaf 객체와 Composite 객체를 모두 동일한 인터페이스로 다루어야 하는데, 이 설계가 상당히 까다롭다.
+
+---
+
+#### Composite 코드 예제 (typescript)
+
+**전체 코드**
+
+```ts
+abstract class Component {
+  protected parent!: Component | null;
+
+  public setParent(parent: Component | null) {
+    this.parent = parent;
+  }
+
+  public getParent(): Component | null {
+    return this.parent;
+  }
+
+  public add(component: Component): void {}
+
+  public remove(component: Component): void {}
+
+  public isComposite(): boolean {
+    return false;
+  }
+
+  public abstract operation(): string;
+}
+
+class Leaf extends Component {
+  public operation(): string {
+    return "Leaf";
+  }
+}
+
+class Composite extends Component {
+  protected children: Component[] = [];
+
+  public add(component: Component): void {
+    this.children.push(component);
+    component.setParent(this);
+  }
+
+  public remove(component: Component): void {
+    const componentIndex = this.children.indexOf(component);
+    this.children.splice(componentIndex, 1);
+
+    component.setParent(null);
+  }
+
+  public isComposite(): boolean {
+    return true;
+  }
+
+  public operation(): string {
+    const results: string[] = [];
+    for (const child of this.children) {
+      results.push(child.operation());
+    }
+
+    return `Branch(${results.join("+")})`;
+  }
+}
+
+function clientCode(component: Component) {
+  console.log(`RESULT: ${component.operation()}`);
+}
+
+const simple = new Leaf();
+console.log("Client: I've got a simple component:");
+clientCode(simple);
+console.log("");
+
+const tree = new Composite();
+const branch1 = new Composite();
+branch1.add(new Leaf());
+branch1.add(new Leaf());
+const branch2 = new Composite();
+branch2.add(new Leaf());
+tree.add(branch1);
+tree.add(branch2);
+console.log("Client: Now I've got a composite tree:");
+clientCode(tree);
+console.log("");
+
+function clientCode2(component1: Component, component2: Component) {
+  if (component1.isComposite()) {
+    component1.add(component2);
+  }
+  console.log(`RESULT: ${component1.operation()}`);
+}
+
+console.log(
+  "Client: I don't need to check the components classes even when managing the tree:"
+);
+clientCode2(tree, simple);
+```
+
+---
+
+### Reference
+
+[Composite 패턴](https://refactoring.guru/ko/design-patterns/Composite)
+
+[타입스크립트로 작성된 Composite](https://refactoring.guru/ko/design-patterns/Composite/typescript/example)
+
+[[번역] 자바스크립트 디자인 패턴](https://www.devh.kr/2021/Design-Patterns-In-JavaScript/)
+
+[복합체 Composite-패턴-완벽-마스터하기](https://inpa.tistory.com/entry/GOF-%F0%9F%92%A0-%EB%B3%B5%ED%95%A9%EC%B2%B4Composite-%ED%8C%A8%ED%84%B4-%EC%99%84%EB%B2%BD-%EB%A7%88%EC%8A%A4%ED%84%B0%ED%95%98%EA%B8%B0)
