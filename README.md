@@ -16,6 +16,8 @@
 
 ### Structural Pattern(구조 패턴)
 
+[Structural Pattern(구조 패턴) - Bridge (브릿지)](#structural-pattern구조-패턴---bridge-브릿지)
+
 [Structural Pattern(구조 패턴) - Adapter (어댑터)](#structural-pattern구조-패턴---adapter-어댑터)
 
 ## Creational Pattern(생성 패턴) - Factory Method (팩토리 메서드)
@@ -1302,5 +1304,109 @@ clientCode(adapter);
 [adapter 패턴](https://refactoring.guru/ko/design-patterns/adapter)
 
 [타입스크립트로 작성된 adapter](https://refactoring.guru/ko/design-patterns/adapter/typescript/example)
+
+[[번역] 자바스크립트 디자인 패턴](https://www.devh.kr/2021/Design-Patterns-In-JavaScript/)
+
+## Structural Pattern(구조 패턴) - Bridge (브릿지)
+
+### Keyword
+
+`구현부`, `추상층`, `기능 계층`
+
+---
+
+### Script
+
+브릿지 패턴은 구현부에서 추상층을 분리해서, 각자 독립적으로 변형이 가능하고 확장할 수 있는 디자인 패턴입니다.
+
+Abstraction이라는 기능 계층의 최상위 클래스를 두고, 구현부분에 해당하는 implementation의 인스턴스를 통해 구현부의 메소드를 호출합니다.
+
+implementation 또한 추상 클래스로 되어 있고, 구현된 implementation의 인스턴스가 Abstraction에 전달됩니다.
+
+브릿지 패턴을 통해, 모놀리식 클래스를 여러 클래스 계층구조로 나눌 수 있고, 각 클래스를 독립적으로 유지보수할 수 있는 장점이 있습니다.
+
+![](https://velog.velcdn.com/images/kangdev/post/fbd26d6f-a427-4a7c-8c4d-85ca41e96913/image.png)
+
+---
+
+### Additional
+
+#### 언제 Bridge 패턴을 쓰나
+
+**여러 변형을 가진 모놀리식 클래스를 독립적으로 유지보수하려 할 때**
+클래스가 다양한 데이터베이스 서버들과 작동할 수 있는 경우에, 각 데이터베이스 서버들은 서로 다른 인터페이스와 프로토콜을 사용한다. 이 때문에, 데이터베이스마다 코드를 수정해주어야 하는데, 브릿지 패턴을 사용하면, 클래스와 데이터베이스 서버 간의 인터페이스를 브릿지를 통해 연결할 수 있다. 이를 통해 다양한 플랫폼에 호환성을 유지할 수 있다.
+
+---
+
+#### Bridge 패턴 과 다른 패턴
+
+**vs 어댑터**
+브리지는 일반적으로 사전에 설계되며, 앱의 다양한 부분을 독립적으로 개발할 수 있도록 합니다. 반면에 어댑터는 일반적으로 기존 앱과 사용되어 원래 호환되지 않던 일부 클래스들이 서로 잘 작동하도록 합니다.
+
+---
+
+#### Bridge 코드 예제 (typescript)
+
+**전체 코드**
+
+```ts
+class Abstraction {
+  protected implementation: Implementation;
+
+  constructor(implementation: Implementation) {
+    this.implementation = implementation;
+  }
+
+  public operation(): string {
+    const result = this.implementation.operationImplementation();
+    return `Abstraction: Base operation with:\n${result}`;
+  }
+}
+
+class ExtendedAbstraction extends Abstraction {
+  public operation(): string {
+    const result = this.implementation.operationImplementation();
+    return `ExtendedAbstraction: Extended operation with:\n${result}`;
+  }
+}
+
+interface Implementation {
+  operationImplementation(): string;
+}
+
+class ConcreteImplementationA implements Implementation {
+  public operationImplementation(): string {
+    return "ConcreteImplementationA: Here's the result on the platform A.";
+  }
+}
+
+class ConcreteImplementationB implements Implementation {
+  public operationImplementation(): string {
+    return "ConcreteImplementationB: Here's the result on the platform B.";
+  }
+}
+
+function clientCode(abstraction: Abstraction) {
+  console.log(abstraction.operation());
+}
+
+let implementation = new ConcreteImplementationA();
+let abstraction = new Abstraction(implementation);
+clientCode(abstraction);
+
+console.log("");
+
+implementation = new ConcreteImplementationB();
+abstraction = new ExtendedAbstraction(implementation);
+clientCode(abstraction);
+```
+
+---
+
+### Reference
+
+[bridge 패턴](https://refactoring.guru/ko/design-patterns/bridge)
+
+[타입스크립트로 작성된 bridge](https://refactoring.guru/ko/design-patterns/bridge/typescript/example)
 
 [[번역] 자바스크립트 디자인 패턴](https://www.devh.kr/2021/Design-Patterns-In-JavaScript/)
