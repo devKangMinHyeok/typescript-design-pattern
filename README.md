@@ -22,6 +22,8 @@
 
 [Structural Pattern(구조 패턴) - Composite (복합체)](#structural-pattern구조-패턴---composite-복합체)
 
+[Structural Pattern(구조 패턴) - Decorator (데코레이터)](#structural-pattern구조-패턴---decorator-데코레이터)
+
 ## Creational Pattern(생성 패턴) - Factory Method (팩토리 메서드)
 
 ### Keyword
@@ -1564,3 +1566,120 @@ clientCode2(tree, simple);
 [[번역] 자바스크립트 디자인 패턴](https://www.devh.kr/2021/Design-Patterns-In-JavaScript/)
 
 [복합체 Composite-패턴-완벽-마스터하기](https://inpa.tistory.com/entry/GOF-%F0%9F%92%A0-%EB%B3%B5%ED%95%A9%EC%B2%B4Composite-%ED%8C%A8%ED%84%B4-%EC%99%84%EB%B2%BD-%EB%A7%88%EC%8A%A4%ED%84%B0%ED%95%98%EA%B8%B0)
+
+## Structural Pattern(구조 패턴) - Decorator (데코레이터)
+
+### Keyword
+
+`Wrapper`, `동적으로 확장`
+
+---
+
+### Script
+
+Decorator 패턴은 객체의 기능을 동적으로 확장할 수 있는 디자인 패턴입니다. 객체를 Wrapping하여 기존 객체의 기능을 유지하면서, 새로운 기능을 추가할 수 있습니다.
+
+Decorator 패턴을 사용하면, 객체의 기능을 유지하면서 새로운 기능을 추가할 수 있게되어, 확장성 측면에서 매우 유리합니다.
+
+---
+
+### Additional
+
+#### 언제 Decorator 패턴을 쓰나
+
+**객체의 기능을 동적으로 확장해야 할 때**
+
+**객체에 새로운 기능을 추가해야 하지만, 상속을 통해 기능을 확장하기 어려운 경우**
+
+상속을 통해 객체의 기능을 확장하려면, 상위 클래스를 수정해야 하므로, 기존 코드에 영향을 미칠 가능성이 있다. 또한, 기존 코드를 변경하면 모든 하위 클래스에도 영향을 미친다. 하지만 데코레이터 패턴을 사용하면, 객체의 기능을 확장하면서도 기존 객체의 코드를 변경하지 않아도 된다.
+
+---
+
+#### Decorator 패턴 장점
+
+**객체의 기능을 동적으로 확장**
+데코레이터 패턴을 사용하면, 객체의 기능을 확장하면서도 기존 객체의 코드를 변경하지 않아도 된다.
+
+**객체를 조합하여 새로운 기능을 만들 수 있다.**
+데코레이터 패턴을 사용하면, 여러 개의 데코레이터를 조합하여 새로운 기능을 만들 수 있다.
+
+**코드의 유연성과 재사용성**
+데코레이터 패턴을 사용하면, 객체의 기능을 동적으로 확장하면서도 기존 객체의 코드를 변경하지 않아도 되므로, 코드의 유연성과 재사용성을 높일 수 있다.
+
+#### Decorator 패턴 단점
+
+**성능 영향을 미침**
+데코레이터 패턴을 사용하면, 실행 시간에 객체를 감싸므로, 성능에 영향을 미칠 수 있다. 따라서, 데코레이터 패턴을 사용할 때는 적절한 방법으로 데코레이터를 조합하여 객체를 생성해야 한다.
+
+**가독성과 객체 일관성 문제**
+데코레이터 패턴에서는 객체를 감싸는 데코레이터 클래스를 중첩해서 사용할 수 있다. 예를 들어, A 데코레이터 클래스를 B 데코레이터 클래스로 감싸고, B 데코레이터 클래스를 C 데코레이터 클래스로 감싸는 식으로 중첩해서 사용할 수 있다.
+
+하지만 이러한 중첩은 가독성 문제뿐만 아니라, 객체의 일관성 문제도 발생할 수 있다. 예를 들어, A 데코레이터 클래스에서 추가한 기능이 B 데코레이터 클래스에서 덮어씌워진다면, A 데코레이터 클래스에서 추가한 기능이 사라지게 된다. 이러한 문제는 데코레이터 클래스를 생성할 때, 조합 순서와 결과를 고려하여 생성해야 한다는 것을 보여준다.
+
+따라서, 데코레이터 패턴에서는 적절한 방법으로 데코레이터 클래스를 조합하고, 객체의 일관성을 유지할 수 있도록 해야한다. 또한, 데코레이터 패턴을 사용할 때는 객체의 일관성과 가독성을 유지하며, 코드의 복잡성을 최소화할 수 있도록 노력해야 한다.
+
+---
+
+#### Decorator 코드 예제 (typescript)
+
+**전체 코드**
+
+```ts
+interface Component {
+  operation(): string;
+}
+
+class ConcreteComponent implements Component {
+  public operation(): string {
+    return "ConcreteComponent";
+  }
+}
+
+class Decorator implements Component {
+  protected component: Component;
+
+  constructor(component: Component) {
+    this.component = component;
+  }
+
+  public operation(): string {
+    return this.component.operation();
+  }
+}
+
+class ConcreteDecoratorA extends Decorator {
+  public operation(): string {
+    return `ConcreteDecoratorA(${super.operation()})`;
+  }
+}
+
+class ConcreteDecoratorB extends Decorator {
+  public operation(): string {
+    return `ConcreteDecoratorB(${super.operation()})`;
+  }
+}
+
+function clientCode(component: Component) {
+  console.log(`RESULT: ${component.operation()}`);
+}
+
+const simple = new ConcreteComponent();
+console.log("Client: I've got a simple component:");
+clientCode(simple);
+console.log("");
+
+const decorator1 = new ConcreteDecoratorA(simple);
+const decorator2 = new ConcreteDecoratorB(decorator1);
+console.log("Client: Now I've got a decorated component:");
+clientCode(decorator2);
+```
+
+---
+
+### Reference
+
+[Decorator 패턴](https://refactoring.guru/ko/design-patterns/Decorator)
+
+[타입스크립트로 작성된 Decorator](https://refactoring.guru/ko/design-patterns/Decorator/typescript/example)
+
+[[번역] 자바스크립트 디자인 패턴](https://www.devh.kr/2021/Design-Patterns-In-JavaScript/)
