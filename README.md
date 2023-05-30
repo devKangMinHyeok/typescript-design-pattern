@@ -24,6 +24,12 @@
 
 [Structural Pattern(구조 패턴) - Decorator (데코레이터)](#structural-pattern구조-패턴---decorator-데코레이터)
 
+[Structural Pattern(구조 패턴) - Facade (퍼사드)](#structural-pattern구조-패턴---facade-퍼사드)
+
+[Structural Pattern(구조 패턴) - Flyweight (플라이웨이트)](#structural-pattern구조-패턴---flyweight-플라이웨이트)
+
+[Structural Pattern(구조 패턴) - Proxy (프록시)](#structural-pattern구조-패턴---proxy-프록시)
+
 ## Creational Pattern(생성 패턴) - Factory Method (팩토리 메서드)
 
 ### Keyword
@@ -1681,5 +1687,417 @@ clientCode(decorator2);
 [Decorator 패턴](https://refactoring.guru/ko/design-patterns/Decorator)
 
 [타입스크립트로 작성된 Decorator](https://refactoring.guru/ko/design-patterns/Decorator/typescript/example)
+
+[[번역] 자바스크립트 디자인 패턴](https://www.devh.kr/2021/Design-Patterns-In-JavaScript/)
+
+## Structural Pattern(구조 패턴) - Facade (퍼사드)
+
+### Keyword
+
+`상위 수준 인터페이스`, `서브 클래스`, `퍼사드 클래스`
+
+---
+
+### Script
+
+퍼사드 패턴은 상위 수준의 인터페이스를 정의함으로써, 서브 클래스로 구현된 각각의 동작들을 모아 하나의 공통 기능을 정의하는 디자인 패턴입니다.
+
+퍼사드 패턴을 사용하면, 클라이언트가 서브 시스템의 코드를 사용하지 않고, 존재를 모르더라도, 상위 수준에서 추상화된 퍼사드 클래스를 통해 쉽게 사용할 수 있습니다. 또, 특정 상황에서는 퍼사드 클래스가 아닌 서브 클래스에 직접 접근할 수도 있습니다.
+
+![](https://velog.velcdn.com/images/kangdev/post/3cb82dd6-c8ae-43a9-b66f-3ac124cebff4/image.png)
+
+---
+
+### Additional
+
+#### 언제 Facade 패턴을 쓰나
+
+- **복잡한 서브 시스템을 상위 인터페이스를 통해, 사용하기 쉽게 만들고 싶을 때**
+- **Third Party API와 같은 외부 라이브러리를 추상화할 때**
+
+---
+
+#### Facade 패턴 장점
+
+- **하위 시스템을 보다 쉽게 사용할 수 있게 해주는 고급 인터페이스**
+- **클라이언트가 서브 시스템에 의존하지 않을 수 있음**
+
+#### Facade 패턴 단점
+
+- **오버헤드 문제**
+  시스템의 복잡성을 줄이기 위한 추가적인 추상화 계층 때문에, 성능 손실이 발생할 수 있음
+
+- **과도한 종속성**
+  퍼사드 클래스는 다른 구성 요소들과 강한 종속성을 가지기 때문에, 시스템 전반의 안정성과 유연성에 예민함
+
+---
+
+#### Facade 코드 예제 (typescript)
+
+**전체 코드**
+
+```ts
+class Facade {
+  protected subsystem1: Subsystem1;
+  protected subsystem2: Subsystem2;
+
+  constructor(subsystem1?: Subsystem1, subsystem2?: Subsystem2) {
+    this.subsystem1 = subsystem1 || new Subsystem1();
+    this.subsystem2 = subsystem2 || new Subsystem2();
+  }
+
+  public operation(): string {
+    let result = "Facade initializes subsystems:\n";
+    result += this.subsystem1.operation1();
+    result += this.subsystem2.operation1();
+    result += "Facade orders subsystems to perform the action:\n";
+    result += this.subsystem1.operationN();
+    result += this.subsystem2.operationZ();
+
+    return result;
+  }
+}
+
+class Subsystem1 {
+  public operation1(): string {
+    return "Subsystem1: Ready!\n";
+  }
+
+  // ...
+
+  public operationN(): string {
+    return "Subsystem1: Go!\n";
+  }
+}
+
+class Subsystem2 {
+  public operation1(): string {
+    return "Subsystem2: Get ready!\n";
+  }
+
+  // ...
+
+  public operationZ(): string {
+    return "Subsystem2: Fire!";
+  }
+}
+
+function clientCode(facade: Facade) {
+  // ...
+
+  console.log(facade.operation());
+
+  // ...
+}
+
+const subsystem1 = new Subsystem1();
+const subsystem2 = new Subsystem2();
+const facade = new Facade(subsystem1, subsystem2);
+clientCode(facade);
+```
+
+---
+
+### Reference
+
+[Facade 패턴](https://refactoring.guru/ko/design-patterns/facade)
+
+[타입스크립트로 작성된 Facade](https://refactoring.guru/ko/design-patterns/facade/typescript/example)
+
+[[번역] 자바스크립트 디자인 패턴](https://www.devh.kr/2021/Design-Patterns-In-JavaScript/)
+
+## Structural Pattern(구조 패턴) - Flyweight (플라이웨이트)
+
+### Keyword
+
+`내부 상태`, `외부 상태`
+
+---
+
+### Script
+
+플라이웨이트 패턴은 객체의 상태를 내부(Intrinsic) 상태와 외부(Extrinsic) 상태로 나누어 관리합니다. 내부 상태는 객체가 독립적으로 가지는 고유한 상태를 의미하며, 외부 상태는 해당 객체의 동작에 영향을 주는 변동 가능한 상태를 의미합니다.
+
+일반적으로 플라이웨이트 패턴은 다수의 유사한 객체를 생성하는 경우에 유용합니다. 예를 들어, 게임에서 많은 수의 동일한 종류의 적 캐릭터를 생성해야 할 때, 각 캐릭터마다 새로운 객체를 생성하는 대신, 플라이웨이트 패턴을 사용하여 객체를 공유함으로써 메모리 사용을 절약할 수 있습니다. 이렇게 함으로써 많은 수의 객체를 효율적으로 관리할 수 있습니다.
+
+---
+
+### Additional
+
+#### 언제 Flyweight 패턴을 쓰나
+
+**대량의 유사한 객체를 생성해야 할 때**
+
+많은 수의 객체가 유사한 내부 상태를 가지고 있고, 이들 객체를 효율적으로 관리하고 메모리를 절약하고자 할 때 플라이웨이트 패턴을 사용할 수 있습니다. 예를 들어, 게임에서 수백 개의 동일한 종류의 적 캐릭터를 생성해야 하는 경우, 캐릭터의 공유 가능한 부분을 플라이웨이트 객체로 관리하여 메모리 사용을 최적화할 수 있습니다.
+
+**객체 생성 및 소멸 오버헤드를 줄이고자 할 때**
+
+객체의 생성과 소멸은 시스템 자원을 소비하는 작업입니다. 플라이웨이트 패턴을 사용하면 객체를 재사용함으로써 생성과 소멸에 따른 오버헤드를 줄일 수 있습니다. 이는 성능 향상에 도움을 주는데, 예를 들어, 네트워크 연결 풀에서 연결 객체를 관리하는 경우, 플라이웨이트 패턴을 사용하여 연결 객체를 재사용함으로써 연결과 해제에 따른 비용을 최소화할 수 있습니다.
+
+**객체의 내부 상태와 외부 상태를 분리하여 관리해야 할 때**
+
+객체의 내부 상태는 객체마다 독립적으로 가지며, 외부 상태는 객체의 동작에 영향을 주는 변동 가능한 상태입니다. 이런 경우 플라이웨이트 패턴을 사용하여 내부 상태를 공유하고 외부 상태를 분리하여 관리할 수 있습니다. 예를 들어, 텍스트 편집기에서 여러 개의 문자 객체를 효율적으로 관리하고자 할 때, 문자 객체의 내부 상태(글자 모양 등)는 공유하고, 외부 상태(위치, 글꼴 등)는 개별 객체마다 유지할 수 있습니다.
+
+---
+
+#### Flyweight 패턴 장점
+
+**메모리 절약**
+
+플라이웨이트 패턴은 유사한 객체들을 공유하여 메모리 사용을 최적화할 수 있습니다. 객체의 내부 상태는 공유되고, 외부 상태는 개별적으로 유지됩니다. 이로 인해 많은 수의 객체를 생성할 때 발생하는 메모리 부담을 줄일 수 있습니다.
+
+**성능 향상**
+
+객체의 생성과 소멸은 시스템 자원을 소비하는 작업입니다. 플라이웨이트 패턴을 사용하면 객체를 재사용함으로써 생성과 소멸에 따른 오버헤드를 줄일 수 있습니다. 이는 프로그램의 실행 속도와 성능을 향상시킬 수 있습니다.
+
+**유연성과 확장성**
+
+플라이웨이트 패턴은 객체의 내부 상태와 외부 상태를 분리하여 관리함으로써 유연성과 확장성을 제공합니다. 내부 상태는 공유되므로 객체 간에 동일한 내부 상태를 가질 수 있습니다. 외부 상태는 개별 객체마다 유지되므로 객체의 동작에 영향을 주는 상태를 자유롭게 조정할 수 있습니다.
+
+---
+
+#### Flyweight 패턴 단점
+
+**추가적인 복잡성**
+
+플라이웨이트 패턴을 구현하기 위해서는 객체의 내부 상태와 외부 상태를 명확히 구분하고, 상태를 관리하기 위한 별도의 구조를 도입해야 합니다. 이로 인해 코드의 복잡성이 증가할 수 있습니다. 또한, 객체를 공유하는 방식에 따라 동기화나 스레드 안정성(Thread Safety) 문제에 대한 고려도 필요합니다.
+
+**객체 상태의 한계**
+
+플라이웨이트 패턴에서는 객체의 내부 상태를 공유하고 외부 상태를 분리하여 관리합니다. 이로 인해 객체의 내부 상태는 동일하게 유지되어야 합니다. 따라서 객체의 내부 상태에 대한 변경이 필요한 경우, 모든 공유 객체에 영향을 줄 수 있습니다. 이는 객체의 내부 상태 변경이 제한될 수 있음을 의미합니다.
+
+**보안 문제**
+
+플라이웨이트 패턴은 객체의 내부 상태를 공유하므로, 해당 상태에 접근할 수 있는 권한이 있는 모든 객체가 동일한 내부 상태를 참조할 수 있습니다. 이는 보안에 민감한 정보를 포함하는 경우에는 적절하지 않을 수 있습니다. 내부 상태의 보안을 유지하기 위해서는 추가적인 보안 메커니즘을 구현해야 할 수 있습니다.
+
+**객체 식별의 어려움**
+
+플라이웨이트 패턴을 사용하면 객체의 내부 상태를 공유하므로, 외부 상태만으로는 객체를 식별하기 어려울 수 있습니다. 여러 객체들이 동일한 내부 상태를 가지고 있기 때문에 외부 상태가 동일한 객체들을 구별하기 어려울 수 있습니다. 이는 객체 식별과 관련된 기능이 필요한 경우에 주의해야 함을 의미합니다.
+
+---
+
+#### Flyweight 코드 예제 (typescript)
+
+**전체 코드**
+
+```ts
+class Flyweight {
+  private sharedState: any;
+
+  constructor(sharedState: any) {
+    this.sharedState = sharedState;
+  }
+
+  public operation(uniqueState): void {
+    const s = JSON.stringify(this.sharedState);
+    const u = JSON.stringify(uniqueState);
+    console.log(`Flyweight: Displaying shared (${s}) and unique (${u}) state.`);
+  }
+}
+
+class FlyweightFactory {
+  private flyweights: { [key: string]: Flyweight } = <any>{};
+
+  constructor(initialFlyweights: string[][]) {
+    for (const state of initialFlyweights) {
+      this.flyweights[this.getKey(state)] = new Flyweight(state);
+    }
+  }
+
+  private getKey(state: string[]): string {
+    return state.join("_");
+  }
+
+  public getFlyweight(sharedState: string[]): Flyweight {
+    const key = this.getKey(sharedState);
+
+    if (!(key in this.flyweights)) {
+      console.log(
+        "FlyweightFactory: Can't find a flyweight, creating new one."
+      );
+      this.flyweights[key] = new Flyweight(sharedState);
+    } else {
+      console.log("FlyweightFactory: Reusing existing flyweight.");
+    }
+
+    return this.flyweights[key];
+  }
+
+  public listFlyweights(): void {
+    const count = Object.keys(this.flyweights).length;
+    console.log(`\nFlyweightFactory: I have ${count} flyweights:`);
+    for (const key in this.flyweights) {
+      console.log(key);
+    }
+  }
+}
+
+const factory = new FlyweightFactory([
+  ["Chevrolet", "Camaro2018", "pink"],
+  ["Mercedes Benz", "C300", "black"],
+  ["Mercedes Benz", "C500", "red"],
+  ["BMW", "M5", "red"],
+  ["BMW", "X6", "white"],
+  // ...
+]);
+factory.listFlyweights();
+
+// ...
+
+function addCarToPoliceDatabase(
+  ff: FlyweightFactory,
+  plates: string,
+  owner: string,
+  brand: string,
+  model: string,
+  color: string
+) {
+  console.log("\nClient: Adding a car to database.");
+  const flyweight = ff.getFlyweight([brand, model, color]);
+  flyweight.operation([plates, owner]);
+}
+
+addCarToPoliceDatabase(factory, "CL234IR", "James Doe", "BMW", "M5", "red");
+
+addCarToPoliceDatabase(factory, "CL234IR", "James Doe", "BMW", "X1", "red");
+
+factory.listFlyweights();
+```
+
+**console log**
+
+```
+FlyweightFactory: I have 5 flyweights:
+Chevrolet_Camaro2018_pink
+Mercedes Benz_C300_black
+Mercedes Benz_C500_red
+BMW_M5_red
+BMW_X6_white
+
+Client: Adding a car to database.
+FlyweightFactory: Reusing existing flyweight.
+Flyweight: Displaying shared (["BMW","M5","red"]) and unique (["CL234IR","James Doe"]) state.
+
+Client: Adding a car to database.
+FlyweightFactory: Can't find a flyweight, creating new one.
+Flyweight: Displaying shared (["BMW","X1","red"]) and unique (["CL234IR","James Doe"]) state.
+
+FlyweightFactory: I have 6 flyweights:
+Chevrolet_Camaro2018_pink
+Mercedes Benz_C300_black
+Mercedes Benz_C500_red
+BMW_M5_red
+BMW_X6_white
+BMW_X1_red
+```
+
+---
+
+### Reference
+
+[Flyweight 패턴](https://refactoring.guru/ko/design-patterns/flyweight)
+
+[타입스크립트로 작성된 Flyweight](https://refactoring.guru/ko/design-patterns/flyweight/typescript/example)
+
+[[번역] 자바스크립트 디자인 패턴](https://www.devh.kr/2021/Design-Patterns-In-JavaScript/)
+
+## Structural Pattern(구조 패턴) - Proxy (프록시)
+
+### Keyword
+
+`접근 제어`, `프록시 객체`, `간접적`, `로깅`, `캐싱`, `성능 측정`
+
+---
+
+### Script
+
+프록시 패턴에서, 프록시는 클라이언트가 실제 객체에 직접 접근하는 대신, 프록시 객체를 통해 간접적으로 접근하게 만듭니다.
+
+프록시 패턴은 접근 제어(access control)가 필요한 경우에, 클라이언트는 접근하려는 객체에 직접 요청이 아닌 프록시 객체를 통해 간접적으로 요청하는 방식으로 사용될 수 있습니다.
+
+프록시 패턴을 통해, 원본 객체에 대한 접근에서 사전처리를 할 수 있고, 프록시 객체에서의 로깅, 캐싱, 성능 측정 등의 작업을 수행할 수 있는 장점이 있습니다.
+
+물론, 중간 계층이 하나 더 생기는 것이기 때문에, 코드 복잡성이나 성능저하의 문제가 발생할 수 있습니다.
+
+---
+
+### Additional
+
+#### 언제 Proxy 패턴을 쓰나
+
+**1. 사용자 인증 등의 접근 제어(Access Control)이 필요한 경우**
+
+**2. 로깅, 캐싱, 성능 측정 등의 추가 기능 제공이 필요한 경우**
+
+**3. 실제 객체의 생성을 지연시켜, 필요한 시점에만 실제 객체를 생성하고 자원을 효율적으로 관리하려 할때**
+
+---
+
+#### Proxy 코드 예제 (typescript)
+
+**전체 코드**
+
+```ts
+interface Subject {
+  request(): void;
+}
+
+class RealSubject implements Subject {
+  public request(): void {
+    console.log("RealSubject: Handling request.");
+  }
+}
+
+class ProxyClass implements Subject {
+  private realSubject: RealSubject;
+
+  constructor(realSubject: RealSubject) {
+    this.realSubject = realSubject;
+  }
+
+  public request(): void {
+    if (this.checkAccess()) {
+      this.realSubject.request();
+      this.logAccess();
+    }
+  }
+
+  private checkAccess(): boolean {
+    console.log("Proxy: Checking access prior to firing a real request.");
+
+    return true;
+  }
+
+  private logAccess(): void {
+    console.log("Proxy: Logging the time of request.");
+  }
+}
+
+function clientCode(subject: Subject) {
+  // ...
+
+  subject.request();
+
+  // ...
+}
+
+console.log("Client: Executing the client code with a real subject:");
+const realSubject = new RealSubject();
+clientCode(realSubject);
+
+console.log("");
+
+console.log("Client: Executing the same client code with a proxy:");
+const proxy = new ProxyClass(realSubject);
+clientCode(proxy);
+```
+
+---
+
+### Reference
+
+[Proxy 패턴](https://refactoring.guru/ko/design-patterns/proxy)
+
+[타입스크립트로 작성된 Proxy](https://refactoring.guru/ko/design-patterns/proxy/typescript/example)
 
 [[번역] 자바스크립트 디자인 패턴](https://www.devh.kr/2021/Design-Patterns-In-JavaScript/)
